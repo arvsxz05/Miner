@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+            body {
+                margin: 0;
+            }
+        </style>
+	</head>
+	<body>
+		<center><div id="game"></div></center>
+		<script type="text/javascript" src="crafty-min.js"></script>
+		<script type="text/javascript">
+			var PLAYING_FIELD_X = 768,
+				PLAYING_FIELD_Y = 544,
+				FIELD_START_X = 132,
+				FIELD_START_Y = 50,
+				MAX_CELLS_X = PLAYING_FIELD_X/32,
+				MAX_CELLS_Y = PLAYING_FIELD_Y/32,
+				PLAYER_NUMBER = 0,
+				LEVEL = 0,
+				LIVES = 20,
+				GEMS_COLLECTED = 0,
+				GEMS_TARGET = [10, 15, 20];
+			Crafty.audio.add({
+				back_music: ["Audio/background_music.wav"],
+				explode: ["Audio/explosion.wav"],
+				coin: ["Audio/coin.wav"]
+			});
+			Crafty.defineScene("Main", function() {
+				if(LEVEL >= 3) {
+					Crafty.enterScene("Accomplished");
+				}
+				else {
+					var map_per_levels = [[
+							[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+							[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+							[2,2,6,2,4,2,2,2,2,2,2,2,2,2,5,2,2,2,2,7,3,3,3,2],
+							[2,2,2,2,5,3,3,3,2,2,2,2,2,2,2,2,2,2,2,7,2,2,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,2,2,2,7,2,2,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,2,2,2,2,7,2,2,2,5],
+							[2,2,3,3,3,2,2,2,2,2,2,2,2,2,5,4,4,4,6,7,2,6,2,4],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,2,7,2,2,2,2],
+							[2,2,2,5,7,3,3,3,2,2,2,2,2,2,2,2,2,2,2,3,3,3,2,2],
+							[2,2,6,2,7,2,2,2,2,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+							[2,2,2,2,7,2,2,2,2,2,2,3,3,3,2,2,7,5,2,2,2,6,2,2],
+							[2,3,3,3,7,4,4,4,4,4,2,2,2,2,2,2,7,2,2,2,2,2,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,2,2,3,3,3,2,2],
+							[2,2,2,3,3,3,2,6,5,2,2,2,2,3,3,3,7,2,2,2,2,2,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,3,3,3,2,2,2,2],
+							[2,2,2,2,2,2,2,3,3,3,2,2,5,2,2,2,7,4,4,4,4,5,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,4,2,2,2,2,2,2,2,2,2,2,2]],
+							[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+							[1,1,1,1,1,1,1,1,1,1,1,7,1,1,1,1,1,1,1,1,1,1,1,1],
+							[2,2,6,2,2,2,2,2,2,2,2,7,2,2,2,2,2,2,4,2,2,2,5,2],
+							[2,4,2,2,2,2,5,2,2,2,2,7,4,4,6,5,4,4,4,2,2,3,3,2],
+							[2,5,2,2,2,2,2,2,2,2,2,7,3,3,3,3,3,3,7,2,2,2,2,2],
+							[2,4,2,2,4,4,4,4,4,4,4,7,4,4,4,3,4,4,7,4,4,4,5,2],
+							[2,4,2,2,2,3,3,3,3,3,3,7,2,2,2,2,2,2,2,2,2,2,2,2],
+							[2,4,2,2,2,3,5,2,4,4,4,7,4,5,4,4,4,2,2,2,2,2,2,2],
+							[2,4,2,2,2,3,2,2,2,5,2,7,2,2,2,2,2,2,6,4,5,2,2,2],
+							[2,4,2,2,2,3,2,2,2,2,2,7,2,2,2,2,2,2,2,2,2,2,2,2],
+							[2,4,2,2,2,3,3,3,3,3,3,7,4,4,4,6,4,4,4,7,2,2,2,2],
+							[2,4,2,7,4,4,4,4,4,4,4,7,2,2,2,2,2,2,2,7,2,2,2,2],
+							[2,4,5,7,2,2,2,2,2,2,2,7,6,2,2,5,2,2,2,7,4,4,4,2],
+							[2,2,2,7,4,6,4,4,5,4,4,7,2,2,2,2,2,2,2,2,2,2,5,2],
+							[2,2,2,2,2,2,2,2,2,2,2,7,4,4,4,4,4,4,4,2,2,2,2,2],
+							[2,2,2,5,2,2,2,2,2,2,2,7,2,2,2,3,3,3,3,3,3,2,2,2],
+							[2,2,2,2,2,2,2,6,2,2,2,7,2,2,2,2,2,2,5,2,2,2,2,2]],
+							[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+							[1,1,1,1,7,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1],
+							[2,2,2,2,7,2,2,2,2,2,2,2,4,2,2,2,2,2,2,2,6,2,4,2],
+							[2,5,2,2,7,2,2,2,2,2,2,2,6,2,2,2,2,2,5,2,2,2,4,2],
+							[2,6,2,2,7,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,2,4,2],
+							[2,2,2,2,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,2,2,4,2],
+							[2,2,4,4,4,4,5,2,4,2,2,5,2,2,4,2,5,4,2,7,2,2,5,2],
+							[2,2,2,2,2,2,2,2,5,2,2,4,2,2,5,2,2,2,2,7,2,2,5,2],
+							[2,2,2,2,2,2,2,2,5,2,2,2,2,2,6,2,2,2,2,7,2,2,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,2,2,5,2,2,2,2,2,7,2,2,2,2],
+							[2,2,2,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,2,2,2,5],
+							[2,2,2,2,2,2,2,2,2,2,2,7,2,2,2,2,2,6,4,4,4,5,2,2],
+							[2,2,2,2,2,2,2,2,2,2,2,7,2,2,2,2,2,2,2,2,2,2,2,2],
+							[2,4,5,4,4,2,2,2,2,2,2,7,2,2,2,2,2,2,2,2,2,2,2,2],
+							[2,2,2,2,7,2,2,2,2,2,2,7,2,2,2,2,2,2,2,2,6,2,2,2],
+							[2,2,2,2,7,2,2,2,2,4,5,4,4,4,4,6,5,2,2,2,2,2,2,2],
+							[2,5,2,2,7,4,2,6,2,2,2,2,2,2,2,2,2,2,2,5,6,2,2,2]]
+						];
+					var screen_map = new Array(PLAYING_FIELD_Y/32);
+					for (var i = 0; i < PLAYING_FIELD_Y/32; i++) {
+						screen_map[i] = new Array(PLAYING_FIELD_X/32);
+					}
+					Crafty.c("CurDir", {
+						up: false,
+						down: true,
+						left: false,
+						right: false,
+
+						init: function() {
+					        this.x = 0;
+					        this.y = 0;
+		    			},
+		    			goUp: function() {
+					        this.up = true;
+							this.down = false;
+							this.left = false;
+							this.right = false;
+		    			},
+		    			goDown: function() {
+					        this.up = false;
+							this.down = true;
+							this.left = false;
+							this.right = false;
+		    			},
+		    			goLeft: function() {
+					        this.up = false;
+							this.down = false;
+							this.left = true;
+							this.right = false;
+		    			},
+		    			goRight: function() {
+					        this.up = false;
+							this.down = false;
+							this.left = false;
+							this.right = true;
+		    			},
+		    			getCurDir : function() {
+		    				if(this.up)
+		    					return "up";
+		    				if(this.down)
+		    					return "down";
+		    				if(this.left)
+		    					return "left";
+		    				if(this.right)
+		    					return "right";
+		    			}
+					});
+
+					Crafty.c("CurCoor", {
+						x_coor: 0,
+						y_coor: 0,
+						falling: false,
+						target_landing: 0,
+
+						allowed_move : function(action) {
+							if(this.falling)
+								return false;
+							switch (action) {
+								case "up":
+									if(this.y_coor == 0)
+										return false;
+									var up_thing = map_per_levels[LEVEL][this.y_coor-1][this.x_coor];
+									return 7 == map_per_levels[LEVEL][this.y_coor][this.x_coor] && (7 >= up_thing && 4 <= up_thing || up_thing == 0);
+								case "down":
+									if(this.y_coor == MAX_CELLS_Y-1)
+										return false;
+									var down_thing = map_per_levels[LEVEL][this.y_coor+1][this.x_coor];
+									return 7 == down_thing || 4 == down_thing;
+								case "left":
+									if(this.x_coor == 0)
+										return false;
+									var left_thing = map_per_levels[LEVEL][this.y_coor][this.x_coor-1];
+									return	(4 <= left_thing && 7 >= left_thing) || left_thing == 0;
+								case "right":
+									if(this.x_coor == MAX_CELLS_X-1)
+										return false;
+									var right_thing = map_per_levels[LEVEL][this.y_coor][this.x_coor+1]
+									return	(4 <= right_thing && 7 >= right_thing) || right_thing == 0;
+								default:
+									return false;
+							}
+						},
+
+						break_land : function(direction) {
+							if(this.falling)
+								return false;
+							else {
+								var random_num = Math.floor((Math.random() * 8)+1);
+								switch (direction) {
+									case "up":
+										if(this.y_coor != 0) {
+											var up_thing = map_per_levels[LEVEL][this.y_coor-1][this.x_coor];
+											if(up_thing == 1 || up_thing == 2) {
+												map_per_levels[LEVEL][this.y_coor-1][this.x_coor] = 4;
+												screen_map[this.y_coor-1][this.x_coor].addComponent("hollow");
+												if(random_num == 8) {
+													// map_per_levels[this.y_coor-1][this.x_coor] = 6;
+													screen_map[this.y_coor-1][this.x_coor].addComponent("mine").removeComponent("hollow");
+													setTimeout(function() {}, 500);
+													map_per_levels[LEVEL][this.y_coor-1][this.x_coor] = 4;
+													screen_map[this.y_coor-1][this.x_coor].removeComponent("mine").addComponent("hollow");
+													map_per_levels[LEVEL][this.y_coor][this.x_coor] = 6;
+													screen_map[this.y_coor][this.x_coor].removeComponent("hollow").addComponent("mine");
+													break;
+												}
+												if(map_per_levels[LEVEL][this.y_coor-2][this.x_coor] == 5) {
+													map_per_levels[LEVEL][this.y_coor-2][this.x_coor] = 4;
+													screen_map[this.y_coor-2][this.x_coor].removeComponent("diamond").addComponent("hollow");
+													map_per_levels[LEVEL][this.y_coor][this.x_coor] = 5;
+													screen_map[this.y_coor][this.x_coor].removeComponent("hollow").addComponent("diamond");
+												}
+											}
+										}
+										break;
+									case "down":
+										if(this.y_coor != MAX_CELLS_Y-1) {
+											var down_thing = map_per_levels[LEVEL][this.y_coor+1][this.x_coor];
+											if(down_thing == 1 || down_thing == 2) {
+												map_per_levels[LEVEL][this.y_coor+1][this.x_coor] = 4;
+												screen_map[this.y_coor+1][this.x_coor].addComponent("hollow");
+												if(random_num == 8) {
+													map_per_levels[LEVEL][this.y_coor+1][this.x_coor] = 6;
+													screen_map[this.y_coor+1][this.x_coor].addComponent("mine");
+												}
+											}
+										}
+										break;
+									case "left":
+										if(this.x_coor != 0) {
+											var left_thing = map_per_levels[LEVEL][this.y_coor][this.x_coor-1];
+											if(left_thing == 1 || left_thing == 2) {
+												if(random_num != 8) {
+													if(map_per_levels[LEVEL][this.y_coor-1][this.x_coor-1] == 5) {
+														screen_map[this.y_coor][this.x_coor-1].addComponent("diamond");
+														map_per_levels[LEVEL][this.y_coor][this.x_coor-1] = 5;
+														map_per_levels[LEVEL][this.y_coor-1][this.x_coor-1] = 4;
+														screen_map[this.y_coor-1][this.x_coor-1].addComponent("hollow");	
+													}
+													else {
+														map_per_levels[LEVEL][this.y_coor][this.x_coor-1] = 4;
+														screen_map[this.y_coor][this.x_coor-1].addComponent("hollow"); 
+													} 
+												}
+												else {
+													map_per_levels[LEVEL][this.y_coor][this.x_coor-1] = 6;
+													screen_map[this.y_coor][this.x_coor-1].addComponent("mine");
+												}
+											}
+										}
+										break;
+									case "right":
+										if(this.x_coor != MAX_CELLS_X-1) {
+											var right_thing = map_per_levels[LEVEL][this.y_coor][this.x_coor+1];
+											if(right_thing == 1 || right_thing == 2) {
+												if(random_num != 8) {
+													if(map_per_levels[LEVEL][this.y_coor-1][this.x_coor+1] == 5) {
+														screen_map[this.y_coor][this.x_coor+1].addComponent("diamond");
+														map_per_levels[LEVEL][this.y_coor][this.x_coor+1] = 5;
+														map_per_levels[LEVEL][this.y_coor-1][this.x_coor+1] = 4;
+														screen_map[this.y_coor-1][this.x_coor+1].addComponent("hollow");	
+													}
+													else {
+														map_per_levels[LEVEL][this.y_coor][this.x_coor+1] = 4;
+														screen_map[this.y_coor][this.x_coor+1].addComponent("hollow"); 
+													}
+												}
+												else {
+													map_per_levels[LEVEL][this.y_coor][this.x_coor+1] = 6;
+													screen_map[this.y_coor][this.x_coor+1].addComponent("mine");
+												}
+											}
+										}
+										break;
+								}
+							}
+						},
+						falls : function() {
+							if(this.falling) {
+								if(this.target_landing != this.y)
+									this.y+=2;
+								else this.falling = false;
+							}
+							else {
+								if(LEVEL < 3 && this.y_coor < MAX_CELLS_Y-1 && (this.y-FIELD_START_Y)%32 == 0 && (map_per_levels[LEVEL][this.y_coor+1][this.x_coor] >= 4 && map_per_levels[LEVEL][this.y_coor+1][this.x_coor] <= 6)) {
+									this.falling = true;
+									for(var i=1; this.y_coor+i < MAX_CELLS_Y && map_per_levels[LEVEL][this.y_coor+i][this.x_coor] >= 4 && map_per_levels[LEVEL][this.y_coor+i][this.x_coor] <= 6; i++) {
+									}
+									this.target_landing = (i-1)*32+this.y;
+									this.y+=2;
+								}
+							}
+						}
+					});
+
+					var assets_obj = {
+						"sprites": {
+							"Sprites/land_sprite.png" : {
+								tile: 32,
+								tileh: 32,
+								map: {
+									sky: [0, 0],
+					                top_land: [1, 0],
+					                land: [2, 0],
+					                rock: [3, 0],
+					                hollow: [4, 0],
+					                diamond: [5, 0],
+					                mine: [6, 0],
+					                ladder: [7, 0]    
+								}
+							},
+							"Sprites/characters.png": {
+					            tile: 32,
+					            tileh: 32,
+					            map: {
+					                walker_start: [0+(PLAYER_NUMBER*3), 0],
+					                walker_middle: [1+(PLAYER_NUMBER*3), 0],
+					                walker_end: [2+(PLAYER_NUMBER*3), 0]
+					            }
+					        },
+					        "Sprites/explode.png": {
+					        	tile: 32,
+					            tileh: 32,
+					            map: {
+					                explode_start: [0, 0],
+					                explode_end: [17, 0]
+					            }
+					        },
+					        "Sprites/sparkle.png": {
+					        	tile: 32,
+					            tileh: 32,
+					            map: {
+					                sparkle_start: [0, 0]
+					            }
+					        },
+						}
+					}
+
+					var bg = Crafty.e("2D, DOM, Image")
+						.attr({x: 0, y: FIELD_START_Y})
+						.image("Backgrounds/score_bar.png");
+
+					Crafty.e("2D, DOM, Text, Motion").attr({ x: 50, y: 210}).text(LEVEL+1).textFont({ family: 'Dalek', size: '36px', weight: 'bold' }).textColor('#FFFFFF');
+					var gem_collected = Crafty.e("2D, DOM, Text, Motion").attr({ x: 40, y: 310})
+					    .text(function () { return GEMS_COLLECTED; })
+					    .textFont({ family: 'Dalek', size: '36px', weight: 'bold' })
+					    .textColor('#FFFFFF')
+					    .dynamicTextGeneration(true);
+					if(LEVEL < 3)
+						Crafty.e("2D, DOM, Text, Motion").attr({ x: 40, y: 410}).text(GEMS_TARGET[LEVEL]).textFont({ family: 'Dalek', size: '36px', weight: 'bold' }).textColor('#FFFFFF');
+					var lives = Crafty.e("2D, DOM, Text, Motion").attr({ x: 40, y: 510})
+					    .text(function () { return LIVES; })
+					    .textColor('#FFFFFF')
+					    .textFont({ family: 'Dalek', size: '36px', weight: 'bold' })
+					    .dynamicTextGeneration(true);
+
+					function draw_map () {
+						
+						for (var i = 0; i < PLAYING_FIELD_Y/32; i++) {
+							for(var j = 0; j < PLAYING_FIELD_X/32; j++) {
+								if(map_per_levels[LEVEL][i][j] == 0)
+									screen_map[i][j] = Crafty.e("2D, Canvas, sky")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 1)
+									screen_map[i][j] = Crafty.e("2D, Canvas, top_land")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 2)
+									screen_map[i][j] = Crafty.e("2D, Canvas, land")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 3)
+									screen_map[i][j] = Crafty.e("2D, Canvas, rock")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 4)
+									screen_map[i][j] = Crafty.e("2D, Canvas, hollow")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 5)
+									screen_map[i][j] = Crafty.e("2D, Canvas, diamond")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 6)
+									screen_map[i][j] = Crafty.e("2D, Canvas, mine")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+			    				if(map_per_levels[LEVEL][i][j] == 7)
+									screen_map[i][j] = Crafty.e("2D, Canvas, ladder")
+			    						.attr({x: FIELD_START_X+j*32, y: FIELD_START_Y+i*32});
+							}
+						}
+						var tempx = Math.floor(PLAYER_NUMBER/4)
+						var walker = Crafty.e('2D, Canvas, walker_start, SpriteAnimation, CurDir, CurCoor')
+							.reel("walking", 1000, [
+							[0+(PLAYER_NUMBER%4*3), 0+(tempx*4)], [1+(PLAYER_NUMBER%4*3), 0+(tempx*4)], [2+(PLAYER_NUMBER%4*3), 0+(tempx*4)],
+							[0+(PLAYER_NUMBER%4*3), 1+(tempx*4)], [1+(PLAYER_NUMBER%4*3), 1+(tempx*4)], [2+(PLAYER_NUMBER%4*3), 1+(tempx*4)],
+							[0+(PLAYER_NUMBER%4*3), 2+(tempx*4)], [1+(PLAYER_NUMBER%4*3), 2+(tempx*4)], [2+(PLAYER_NUMBER%4*3), 2+(tempx*4)],
+							[0+(PLAYER_NUMBER%4*3), 3+(tempx*4)], [1+(PLAYER_NUMBER%4*3), 3+(tempx*4)], [2+(PLAYER_NUMBER%4*3), 3+(tempx*4)]
+							])
+							.attr({x:FIELD_START_X, y:FIELD_START_Y})
+							.animate("walking", -1)
+							.bind('KeyDown', function(e){
+								if(!this.isPlaying() && (e.key == Crafty.keys.UP_ARROW || e.key == Crafty.keys.DOWN_ARROW 
+									|| e.key == Crafty.keys.RIGHT_ARROW || e.key == Crafty.keys.LEFT_ARROW)) 
+									this.resumeAnimation();
+								else this.pauseAnimation();
+							});
+						walker.requires('Keyboard')
+						.bind('EnterFrame', function() {
+							if(LIVES == 0)
+								Crafty.enterScene("Game Over");
+							if(GEMS_COLLECTED == GEMS_TARGET[LEVEL]) {
+								LEVEL++;
+								GEMS_COLLECTED = 0;
+								Crafty.enterScene("Main");
+							}
+							var adder = 1;
+							if((this.x-FIELD_START_X)%32 != 0) {
+								if(this.falling)
+									this.falls();
+								else {
+									this.resumeAnimation();
+									if(this.x%2 == 0)
+										adder = 2;
+									if(this.right) {
+										if(!(this.reelPosition() >= 6 && this.reelPosition() <= 7))
+											this.reelPosition(6);
+										this.x+=adder; 
+									}
+									else if(this.left) {
+										if(!(this.reelPosition() >= 3 && this.reelPosition() <= 4))
+											this.reelPosition(3);
+										this.x-=adder; 
+									}
+								}
+							} else if((this.y-FIELD_START_Y)%32 != 0) {
+								if(this.falling)
+									this.falls();
+								else {
+									this.resumeAnimation();
+									if(this.y%2 == 0)
+										adder = 2;
+									if(this.down) {
+										if(!(this.reelPosition() >= 9 && this.reelPosition() <= 10))
+											this.reelPosition(9);
+										this.y+=adder; 
+									}
+									else if(this.up) {
+										if(!(this.reelPosition() >= 9 && this.reelPosition() <= 10))
+											this.reelPosition(9);
+										this.y-=adder; 
+									}
+								}
+							} else {
+								this.x_coor = (this.x-FIELD_START_X)/32;
+								this.y_coor = (this.y-FIELD_START_Y)/32;
+								if(LEVEL < 3 && map_per_levels[LEVEL][this.y_coor][this.x_coor] == 6) {
+									map_per_levels[LEVEL][this.y_coor][this.x_coor] = 4;
+									screen_map[this.y_coor][this.x_coor].addComponent("hollow");
+									Crafty.e("2D, Canvas, explode_start, SpriteAnimation")
+										.reel("explosion", 500, [
+											[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0]
+										]).attr({x: this.x, y: this.y})
+										.animate("explosion", 1);
+									this.falling = false;
+									this.target_landing = 0;
+									LIVES--;
+									this.x_coor = 0;
+									this.y_coor = 0;
+									this.x = FIELD_START_X;
+									this.y = FIELD_START_Y;
+									Crafty.audio.play("explode", 1, 0.5);
+								}
+								if(LEVEL < 3 && map_per_levels[LEVEL][this.y_coor][this.x_coor] == 5) {
+									Crafty.e("2D, Canvas, sparkle_start, SpriteAnimation")
+										.reel("sparkling", 500, [
+											[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
+											[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
+											[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],
+											[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]
+										]).attr({x: this.x, y: this.y})
+										.animate("sparkling", 1);
+									map_per_levels[LEVEL][this.y_coor][this.x_coor] = 4;
+									GEMS_COLLECTED++;
+									screen_map[this.y_coor][this.x_coor].addComponent("hollow");
+									Crafty.audio.play("coin",1);
+								}
+								this.falls();
+								if(this.falling)
+									this.falls();
+								else {
+									if (this.isDown('UP_ARROW')) {
+										if(this.allowed_move("up"))
+											this.y-=2;
+										if(!(this.reelPosition() >= 9 && this.reelPosition() <= 10))
+											this.reelPosition(9);
+										this.goUp();
+										
+									}
+									else if(this.isDown('DOWN_ARROW')) {
+										if(this.allowed_move("down")) {
+											this.y+=2;
+											if(!(this.reelPosition() >= 9 && this.reelPosition() <= 10))
+												this.reelPosition(9);
+										}
+										if(!(this.reelPosition() >= 0 && this.reelPosition() <= 1) && !this.allowed_move("down"))
+											this.reelPosition(0);
+										this.goDown();
+
+									}
+									else if(this.isDown('RIGHT_ARROW')) {
+										if(this.allowed_move("right"))
+											this.x+=2;
+										if(!(this.reelPosition() >= 6 && this.reelPosition() <= 7))
+											this.reelPosition(6);
+										this.goRight();
+									}
+									else if(this.isDown('LEFT_ARROW')) {
+										if(this.allowed_move("left"))
+											this.x-=2;
+										if(!(this.reelPosition() >= 3 && this.reelPosition() <= 4))
+											this.reelPosition(3);
+										this.goLeft();
+									}
+									else if(this.isDown('X')) {
+										var temp_current_direction = this.getCurDir();
+										this.break_land(temp_current_direction);
+									}
+									else if(!(this.isDown('UP_ARROW') || this.isDown('DOWN_ARROW')
+										|| this.isDown('RIGHT_ARROW') || this.isDown('LEFT_ARROW'))) 
+										this.pauseAnimation();
+								}
+							}
+						});
+					}
+
+					Crafty.load(assets_obj, draw_map);
+				}
+			});
+			Crafty.defineScene("Menu", function() {
+				LIVES = 20;
+				LEVEL = 0;
+				GEMS_COLLECTED = 0;
+				Crafty.audio.play("back_music", -1);
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/menu.png");
+				var start = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 250})
+					.image("Buttons/Start.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Select");
+					});
+				var instruct = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 350})
+					.image("Buttons/Instructions.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Instruction");
+					});
+				var about = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 450})
+					.image("Buttons/About.png")
+					.bind("Click", function() {
+						Crafty.enterScene("About");
+					});
+			});
+			Crafty.defineScene("Instruction", function() {
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/instruction_bg.png");
+				var back = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 450})
+					.image("Buttons/Back.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Menu");
+				});
+			});
+			Crafty.defineScene("About", function() {
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/about_bg.png");
+				var back = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
+					.image("Buttons/Back.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Menu");
+				});
+			});
+			Crafty.defineScene("Select", function() {
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/select.png");
+				var chars = Crafty.e("2D, DOM, Image")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 250})
+					.image("Sprites/char_thumbnail.png");
+				var back = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2+100, y: 480})
+					.image("Buttons/Back.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Menu");
+					});
+				var start = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-300-100+1, y: 480})
+					.image("Buttons/Start.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Main");
+						PLAYER_NUMBER = Math.floor((selector.x-chars.x)/64) + Math.floor((selector.y-chars.y)/64)*4;
+					});
+				var selector = Crafty.e("2D, DOM, Image, Keyboard")
+					.attr({x: chars.x, y: chars.y})
+					.image("Backgrounds/selector.png")
+					.bind("KeyDown", function(e) {
+						if (this.isDown('UP_ARROW')) {
+							if(this.y != chars.y)
+								this.y = chars.y;
+						}
+						else if(this.isDown('DOWN_ARROW')) {
+							if(this.y != chars.y+64)
+								this.y = chars.y+64;
+						}
+						else if(this.isDown('RIGHT_ARROW')) {
+							if(this.x != chars.x+192)
+								this.x += 64;
+						}
+						else if(this.isDown('LEFT_ARROW')) {
+							if(this.x != chars.x)
+								this.x -= 64;
+						}
+					});
+			});
+
+			Crafty.defineScene("Game Over", function() {
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/game_over.png");
+				var back = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
+					.image("Buttons/Back.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Menu");
+				});
+			});
+			Crafty.defineScene("Accomplished", function() {
+				var bg = Crafty.e("2D, DOM, Image")
+					.attr({x: 0, y: FIELD_START_Y})
+					.image("Backgrounds/accomplished.png");
+				var back = Crafty.e("2D, DOM, Image, Mouse")
+					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
+					.image("Buttons/Back.png")
+					.bind("Click", function() {
+						Crafty.enterScene("Menu");
+				});
+			});
+			Crafty.init(PLAYING_FIELD_X+FIELD_START_X,PLAYING_FIELD_Y+FIELD_START_Y, document.getElementById('game'));
+			Crafty.enterScene("Menu");
+		</script>
+	</body>
+</html>
