@@ -27,6 +27,7 @@
 				explode: ["Audio/explosion.wav"],
 				coin: ["Audio/coin.wav"]
 			});
+			Crafty.audio.play("back_music", -1);
 			Crafty.defineScene("Main", function() {
 				if(LEVEL >= 3) {
 					Crafty.enterScene("Accomplished");
@@ -524,7 +525,6 @@
 				LIVES = 20;
 				LEVEL = 0;
 				GEMS_COLLECTED = 0;
-				Crafty.audio.play("back_music", -1);
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
 					.image("Backgrounds/menu.png");
