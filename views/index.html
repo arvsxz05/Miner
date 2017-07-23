@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<center><div id="game"></div></center>
-		<script type="text/javascript" src="crafty-min.js"></script>
+		<script type="text/javascript" src="/static/crafty-min.js"></script>
 		<script type="text/javascript">
 			var PLAYING_FIELD_X = 768,
 				PLAYING_FIELD_Y = 544,
@@ -23,9 +23,9 @@
 				GEMS_COLLECTED = 0,
 				GEMS_TARGET = [10, 15, 20];
 			Crafty.audio.add({
-				back_music: ["Audio/background_music.wav"],
-				explode: ["Audio/explosion.wav"],
-				coin: ["Audio/coin.wav"]
+				back_music: ["/static/Audio/background_music.wav"],
+				explode: ["/static/Audio/explosion.wav"],
+				coin: ["/static/Audio/coin.wav"]
 			});
 			Crafty.audio.play("back_music", -1);
 			Crafty.defineScene("Main", function() {
@@ -284,7 +284,7 @@
 
 					var assets_obj = {
 						"sprites": {
-							"Sprites/land_sprite.png" : {
+							"/static/Sprites/land_sprite.png" : {
 								tile: 32,
 								tileh: 32,
 								map: {
@@ -298,7 +298,7 @@
 					                ladder: [7, 0]    
 								}
 							},
-							"Sprites/characters.png": {
+							"/static/Sprites/characters.png": {
 					            tile: 32,
 					            tileh: 32,
 					            map: {
@@ -307,7 +307,7 @@
 					                walker_end: [2+(PLAYER_NUMBER*3), 0]
 					            }
 					        },
-					        "Sprites/explode.png": {
+					        "/static/Sprites/explode.png": {
 					        	tile: 32,
 					            tileh: 32,
 					            map: {
@@ -315,7 +315,7 @@
 					                explode_end: [17, 0]
 					            }
 					        },
-					        "Sprites/sparkle.png": {
+					        "/static/Sprites/sparkle.png": {
 					        	tile: 32,
 					            tileh: 32,
 					            map: {
@@ -327,7 +327,7 @@
 
 					var bg = Crafty.e("2D, DOM, Image")
 						.attr({x: 0, y: FIELD_START_Y})
-						.image("Backgrounds/score_bar.png");
+						.image("/static/Backgrounds/score_bar.png");
 
 					Crafty.e("2D, DOM, Text, Motion").attr({ x: 50, y: 210}).text(LEVEL+1).textFont({ family: 'Dalek', size: '36px', weight: 'bold' }).textColor('#FFFFFF');
 					var gem_collected = Crafty.e("2D, DOM, Text, Motion").attr({ x: 40, y: 310})
@@ -527,22 +527,22 @@
 				GEMS_COLLECTED = 0;
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/menu.png");
+					.image("/static/Backgrounds/menu.png");
 				var start = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 250})
-					.image("Buttons/Start.png")
+					.image("/static/Buttons/Start.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Select");
 					});
 				var instruct = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 350})
-					.image("Buttons/Instructions.png")
+					.image("/static/Buttons/Instructions.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Instruction");
 					});
 				var about = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 450})
-					.image("Buttons/About.png")
+					.image("/static/Buttons/About.png")
 					.bind("Click", function() {
 						Crafty.enterScene("About");
 					});
@@ -550,10 +550,10 @@
 			Crafty.defineScene("Instruction", function() {
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/instruction_bg.png");
+					.image("/static/Backgrounds/instruction_bg.png");
 				var back = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 450})
-					.image("Buttons/Back.png")
+					.image("/static/Buttons/Back.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Menu");
 				});
@@ -561,10 +561,10 @@
 			Crafty.defineScene("About", function() {
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/about_bg.png");
+					.image("/static/Backgrounds/about_bg.png");
 				var back = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
-					.image("Buttons/Back.png")
+					.image("/static/Buttons/Back.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Menu");
 				});
@@ -572,26 +572,26 @@
 			Crafty.defineScene("Select", function() {
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/select.png");
+					.image("/static/Backgrounds/select.png");
 				var chars = Crafty.e("2D, DOM, Image")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 250})
-					.image("Sprites/char_thumbnail.png");
+					.image("/static/Sprites/char_thumbnail.png");
 				var back = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2+100, y: 480})
-					.image("Buttons/Back.png")
+					.image("/static/Buttons/Back.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Menu");
 					});
 				var start = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-300-100+1, y: 480})
-					.image("Buttons/Start.png")
+					.image("/static/Buttons/Start.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Main");
 						PLAYER_NUMBER = Math.floor((selector.x-chars.x)/64) + Math.floor((selector.y-chars.y)/64)*4;
 					});
 				var selector = Crafty.e("2D, DOM, Image, Keyboard")
 					.attr({x: chars.x, y: chars.y})
-					.image("Backgrounds/selector.png")
+					.image("/static/Backgrounds/selector.png")
 					.bind("KeyDown", function(e) {
 						if (this.isDown('UP_ARROW')) {
 							if(this.y != chars.y)
@@ -615,10 +615,10 @@
 			Crafty.defineScene("Game Over", function() {
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/game_over.png");
+					.image("/static/Backgrounds/game_over.png");
 				var back = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
-					.image("Buttons/Back.png")
+					.image("/static/Buttons/Back.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Menu");
 				});
@@ -626,10 +626,10 @@
 			Crafty.defineScene("Accomplished", function() {
 				var bg = Crafty.e("2D, DOM, Image")
 					.attr({x: 0, y: FIELD_START_Y})
-					.image("Backgrounds/accomplished.png");
+					.image("/static/Backgrounds/accomplished.png");
 				var back = Crafty.e("2D, DOM, Image, Mouse")
 					.attr({x: (PLAYING_FIELD_X+FIELD_START_X)/2-150, y: 480})
-					.image("Buttons/Back.png")
+					.image("/static/Buttons/Back.png")
 					.bind("Click", function() {
 						Crafty.enterScene("Menu");
 				});

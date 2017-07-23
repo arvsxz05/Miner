@@ -1,0 +1,11 @@
+{
+  "name": "Miner Game",
+  "description": "A Simple game using Crafty.js for CMSC 126",
+  "repository": "https://github.com/arvsxz05/Miner.git",
+  "keywords": [
+    "Miner",
+    "Game",
+    "Simple"
+  ],
+  "image": "heroku/nodejs"
+}

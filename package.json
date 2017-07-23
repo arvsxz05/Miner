@@ -1,0 +1,30 @@
+{
+  "name": "miner",
+  "version": "1.0.0",
+  "description": "A Simple game using Crafty.js for CMSC 126",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvsxz05/Miner.git"
+  },
+  "keywords": [
+    "Miner",
+    "Game",
+    "Simple"
+  ],
+  "author": "Arvin Arbuis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arvsxz05/Miner/issues"
+  },
+  "homepage": "https://github.com/arvsxz05/Miner#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "consolidate": "^0.14.5",
+    "express": "^4.15.3",
+    "nunjucks": "^3.0.1"
+  }
+}
