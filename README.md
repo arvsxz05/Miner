@@ -4,6 +4,8 @@ This game is in compliance to the Lab Exercise 2 for CMSC 126. This uses [Crafty
 
 Created by: [Arvin Arvin](https://github.com/arvsxz05)
 
+Play it HERE -> https://game-miner.herokuapp.com/
+
 ## Instructions
 
 We are on a quest! The supreme leader's precious and powerful gems were stolen! Luckily, the thief left a clue on where he buried the gems. The supreme leader gave you 20 lives and it is your task to collect 'em all!
