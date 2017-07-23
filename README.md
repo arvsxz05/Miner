@@ -2,7 +2,7 @@
 
 This game is in compliance to the Lab Exercise 2 for CMSC 126. This uses [Crafty.js](http://craftyjs.com/) library in its animation and controls.
 
-Created by: [Arvin Arvin](https://github.com/arvsxz05)
+Created by: [Arvin Arbuis](https://github.com/arvsxz05)
 
 Play it HERE -> https://game-miner.herokuapp.com/
 
